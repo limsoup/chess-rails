@@ -1,0 +1,8 @@
+<h1>Register</h1>
+
+<%= form_for(@user) do |f|%>
+	<%= f.email_field :email, {placeholder: "Email"} %>
+	<%= f.password_field :password , {placeholder: "Password"}%>
+	<%= f.password_field :password_confirmation , {placeholder: "Confirm Password"} %>
+	<%= f.submit "Register" %>
+<% end %>

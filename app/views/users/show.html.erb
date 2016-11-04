@@ -1,0 +1,22 @@
+<h1><%= 'Your ' if current_user.id == @user.id %>Profile</h1>
+
+Email: <%= @user.email %>
+<br/>
+<%= link_to 'New Game', new_chess_game_path %>
+
+<h2>Accepted Games</h2>
+<% now = Time.now %>
+<% @user.games.accepted.each do |g| -%>
+	<%= link_to " Challenged #{distance_of_time_in_words(now, g.created_at)} ago", g %>
+<% end %>
+
+<h2>Games Waiting On You To Accept</h2>
+
+<% @user.games.waiting_on(@user).each do |g| -%>
+	<%= link_to "Challenged #{distance_of_time_in_words(now, g.created_at)} ago", g %> | <%= link_to 'Accept', accept_chess_game_path(g) %> | <%= link_to 'Decline', destroy_chess_game_path(g) %>
+<% end %>
+
+<h2>Games Waiting On Opponent To Accept</h2>
+<% @user.games_as_white.waiting.each do |g| -%>
+	<%= link_to "Challenged #{distance_of_time_in_words(now, g.created_at)} ago", g %> | <%= link_to 'Decline', destroy_chess_game_path(g) %>
+<% end %>

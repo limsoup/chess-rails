@@ -1,0 +1,31 @@
+<%= form_for(@chess_game) do |f| %>
+  <% if @chess_game.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@chess_game.errors.count, "error") %> prohibited this chess_game from being saved:</h2>
+
+      <ul>
+      <% @chess_game.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :fen %><br>
+    <%= f.text_field :fen %>
+  </div>
+  <div class="field">
+    <%= f.label :black_player_id %><br>
+    <%= f.select :black_player_id do %>
+      <% @users.each do |u| -%>
+        <% unless u.id == current_user.id %>
+          <%= content_tag(:option, u.email, value: u.id) %>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

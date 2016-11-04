@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  state_fen: 
+  white_player: 
+  black_player: 
+  white_accept: 
+  black_accept: 
+
+two:
+  state_fen: 
+  white_player: 
+  black_player: 
+  white_accept: 
+  black_accept: 

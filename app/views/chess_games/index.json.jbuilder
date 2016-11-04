@@ -1,0 +1,1 @@
+json.array! @chess_games, partial: 'chess_games/chess_game', as: :chess_game

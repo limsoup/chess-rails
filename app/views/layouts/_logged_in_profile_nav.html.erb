@@ -1,0 +1,7 @@
+<!-- current_user.email
+recent game
+see profile
+log out -->
+<li> Logged In : <%= current_user.email %></li>
+<li> <%= link_to 'Profile', current_user%> </li>
+<li> <%= link_to 'Log Out', logout_path %> </li>

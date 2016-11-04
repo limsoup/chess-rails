@@ -1,0 +1,35 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Chess Games</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>State fen</th>
+      <th>White player</th>
+      <th>Black player</th>
+      <th>White accept</th>
+      <th>Black accept</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @chess_games.each do |chess_game| %>
+      <tr>
+        <td><%= chess_game.fen %></td>
+        <td><%= chess_game.white_player_id %></td>
+        <td><%= chess_game.black_player_id %></td>
+        <td><%= chess_game.white_accept %></td>
+        <td><%= chess_game.black_accept %></td>
+        <td><%= link_to 'Show', chess_game %></td>
+        <td><%= link_to 'Edit', edit_chess_game_path(chess_game) %></td>
+        <td><%= link_to 'Destroy', chess_game, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Chess game', new_chess_game_path %>

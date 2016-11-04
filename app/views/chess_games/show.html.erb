@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>fen:</strong>
+  <%= @chess_game.fen %>
+</p>
+
+<p>
+  <strong>White player:</strong>
+  <%= @chess_game.white_player_id %>
+</p>
+
+<p>
+  <strong>Black player:</strong>
+  <%= @chess_game.black_player_id %>
+</p>
+
+<p>
+  <strong>White accept:</strong>
+  <%= @chess_game.white_accept %>
+</p>
+
+<p>
+  <strong>Black accept:</strong>
+  <%= @chess_game.black_accept %>
+</p>
+
+<%= link_to 'Edit', edit_chess_game_path(@chess_game) %> |
+<%= link_to 'Back', chess_games_path %>
