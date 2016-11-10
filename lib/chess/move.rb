@@ -1,4 +1,4 @@
-require_relative './position'
+# require_dependency './position'
 class Move
 	attr_accessor :piece, :destination, :promotion
 	def initialize(piece, destination, promotion = nil)
@@ -9,7 +9,9 @@ class Move
 	end
 
 	def short
-		piece.position.short + ' ' + destination.short + (promotion ? ' '+promotion : '')
+		{origin: piece.position.short,
+		 destination: destination.short,
+		 promotion: (promotion ? ' '+promotion : nil)}
 	end
 
 	def move_info_from_short(str)

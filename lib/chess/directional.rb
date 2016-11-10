@@ -1,4 +1,4 @@
-require_relative "./move"
+require_dependency "./move"
 
 module Directional
 
@@ -19,6 +19,7 @@ module Directional
 	end
 
 	def gather_legal_moves(ignore_king_danger = false)
+		# return [] if caller.length > 130
 		moves = Array.new
 		initial_vectors.each do |vector_method_name|
 			self.send(vector_method_name) do |phase|

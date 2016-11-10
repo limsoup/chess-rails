@@ -19,9 +19,10 @@ class User < ActiveRecord::Base
 	# has_many :games_waiting_on_self, -> (chess_game) (chess_game) {where("white_player == ? AND black_accepted == ?", self.id , false)}
 	has_many :games_as_white, class_name: 'ChessGame', foreign_key: 'white_player_id' #-> (chess_game) {where("white_player == ?", self.id )}
 	has_many :games_as_black, class_name: 'ChessGame', foreign_key: 'black_player_id' # -> (chess_game) {where("black_player == ?", self.id )}
+	has_many :games_as_active, class_name: 'ChessGame', foreign_key: 'active_player_id' 
 	# scope :games, -> {joins(:games_as_white).merge(:games_as_black)}
 	# (joins(:games).
-	accepts_nested_attributes_for :games_as_black, :games_as_white
+	accepts_nested_attributes_for :games_as_black, :games_as_white, :games_as_active
 	validates :email, presence: true, uniqueness: {case_sensitive: false}
 
 

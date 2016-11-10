@@ -1,6 +1,5 @@
 require_dependency './pieces'
 require_dependency './position'
-
 class ChessBoard
 	#maybe I should lock these down?
 	attr_accessor :game, :board_array, :en_passantable_pawn, :wqc, :wkc, :bqc, :bkc
@@ -21,6 +20,14 @@ class ChessBoard
 		'Q' => Queen,
 		'K' => King,
 		'P' => Pawn
+	}
+
+	PieceSortOrder = {
+		'P' => 1,
+		'N' => 2,
+		'B' => 3,
+		'R' => 4,
+		'Q' => 5
 	}
 
 	def get_moves_for_active_game_player
@@ -49,12 +56,12 @@ class ChessBoard
 		end
 
 		# active_color_fen, castling_fen, en_passant_fen, half_move_clock_fen, move_number_fen = fen_str.split
-		board_array_file_fen = board_fen.split('/')
+		board_array_file_fen = board_fen.split('/').reverse
 		8.times do |file|
 			board_array_cells = board_array_file_fen[file].split(//)
 			rank = 0
 			board_array_cells.each do |cell|
-				if cell.to_i
+				if cell.to_i != 0
 					num_spaces = cell.to_i
 					num_spaces.times do
 						self.board_array[file][rank] = nil
@@ -62,8 +69,8 @@ class ChessBoard
 					end
 				else
 					piece_position = Position.new(rank, file)
-					piece_player = /[[:upper:]]/.match(piece_char) ? self.game.white_game_player : self.game.black_game_player
-					self.board_array[file][rank] = CharToPieceClassnameMap.new(piece_player, self, currentPosition)
+					piece_player = /[[:upper:]]/.match(cell) ? self.game.white_game_player : self.game.black_game_player
+					self.board_array[file][rank] = CharToPieceClassnameMap[cell.upcase].new(piece_player, self, piece_position)
 					rank += 1
 				end
 			end
@@ -81,7 +88,7 @@ class ChessBoard
 		fo[:en_passantable_pawn] = en_passantable_pawn ? en_passantable_pawn.position.short : '-'
 
 		fen_str = Array.new(8) {""}
-		board_array.each_with_index do |file, i|
+		board_array.reverse.each_with_index do |file, i|
 			blank_counter = 0
 			file.each do |cell|
 				if cell
@@ -94,6 +101,11 @@ class ChessBoard
 					blank_counter += 1
 				end
 			end
+			if blank_counter > 0
+				fen_str[i] += blank_counter.to_s
+				blank_counter = 0
+			end
+
 		end
 		fo[:board_fen] = fen_str.join("/")
 		fo
@@ -146,14 +158,16 @@ class ChessBoard
 		# check for end of game
 		
 		# if !game.needs_promotion
+			short_move_to_log = move.short
 			self.en_passantable_pawn = nil
 			is_capture = false
 			pawn_advance = false
 			if move.piece.is_a?(King) and (move.destination.rank - move.piece.position.rank).abs > 1
 				change_piece_position(move.piece, move.destination)
+				#castle
 				castled_rook = get_piece(Position.new((move.destination.rank < 4) ? 0 : 7, move.destination.file))
 				change_piece_position(castled_rook, Position.new(((move.destination.rank < 4) ? 3 : 5), move.destination.file))
-				if piece.player.white_game_player
+				if move.piece.player.white
 					(move.destination.rank < 4) ? self.wqc = false : self.wkc = false
 				else
 					(move.destination.rank < 4) ? self.bqc = false : self.bkc = false
@@ -162,7 +176,7 @@ class ChessBoard
 				(move.destination.rank - move.piece.position.rank).abs > 0 and 
 				(move.destination.file - move.piece.position.file).abs > 0 and 
 				!get_piece(move.destination))
-
+				#en passant
 				change_piece_position(move.piece, move.destination)
 				captured_pawn = get_piece(move.destination.vertical(-1*(move.destination.file - move.piece.file)))
 				capture(captured_pawn)
@@ -189,8 +203,12 @@ class ChessBoard
 			end
 			# puts "hello" if game.is_check_simulation == false
 			game.switch_player
-			game.log_move(move, is_capture, pawn_advance) if game.is_check_simulation == false
-			game.check_status if game.is_check_simulation == false
+			if game.is_check_simulation == false
+				game.log_move(move, is_capture, pawn_advance, short_move_to_log) 
+				game.update_fen
+				self.print_board
+				game.check_status
+			end
 		# end
 
 
@@ -204,7 +222,9 @@ class ChessBoard
 	end
 
 	def capture(piece)
-		piece.player.opponent.captures << piece
+		p_index = [*piece.player.opponent.captures.each_with_index].bsearch{|x, _| PieceSortOrder[piece.printPiece.upcase] < PieceSortOrder[x.upcase]}
+		p_index = p_index ? p_index.last : 0
+		piece.player.opponent.captures.insert(p_index, piece.printPiece)
 		board_array[piece.position.file][piece.position.rank] = nil
 	end
 
@@ -217,7 +237,9 @@ class ChessBoard
 
 	def legal?(move)
 		#assume the move is allowed by the piece
-		in_bounds?(move) and !same_team?(move) and !endangers_king?(move)
+		# debugger
+		# puts "checking piece's legal move: #{move.piece.printPiece}"
+		in_bounds?(move) and !same_team?(move) and (game.is_check_simulation == true ? true : !endangers_king?(move))
 	end
 
 	def in_bounds?(move)
@@ -237,15 +259,19 @@ class ChessBoard
 	end
 
 	def endangers_king?(move)
+		#say the active player is white
+		#we want to see if the white king is in danger
+		#then in the simulated game the active player is white at first
+		#the move is done, and the active player for the simulated game is black
 		game.simulate_move move
 		game.simulated_game.is_check_simulation = true
-		retval = game.simulated_game.board.in_check?(game.active_game_player.opponent)
+		retval = game.simulated_game.board.in_check?(game.simulated_game.active_game_player.opponent)
 		game.rollback_simulate
 		retval
 	end
 
 	def in_check?(player_in_question)
-		return false if game.is_check_simulation
+		# return false if game.is_check_simulation
 		# print_board
 		# puts "-----------"
 		#so this assumes that the simulated_move is done, and the player is al

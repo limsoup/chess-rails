@@ -1,8 +1,8 @@
 # require Matrix
 require 'matrix'
 # require 'math'
-require_relative './directional'
-require_relative './accumulation'
+require_dependency './directional'
+require_dependency './accumulation'
 #initial vectors
 #rotate 
 #use the class
@@ -17,7 +17,7 @@ class Piece
 		self.player = player
 		self.board = board
 		self.position = position
-		self.has_moved = false
+		# self.has_moved = false
 		#self.piece_id_for_game = piece_id_for_game
 	end
 	
@@ -47,7 +47,7 @@ class King < Piece
 	PrintChar = 'k'
 	def gather_legal_moves(ignore_king_danger = false)
 		moves = super
-		if !ignore_king_danger
+		if ignore_king_danger == false and board.game.is_check_simulation == false
 			#kingside castle
 			valid_ksc = true
 
@@ -154,10 +154,11 @@ class Pawn < Piece
 	PrintChar = 'p'
 
 	def gather_legal_moves(ignore_king_danger = false)
+		# return [] if caller.length > 130
 		moves = []
 		moves << Move.new(self, position.vertical(player.white ? 1 : -1))
-		if (position.rank == 1 and player.white) or (position.rank == 6 and player.black)
-			moves << Move.new(self, position.vertical(player.white ? 2 : -2), true)
+		if (position.file == 1 and player.white) or (position.file == 6 and !(player.white))
+			moves << Move.new(self, position.vertical(player.white ? 2 : -2))
 		end
 
 		
@@ -180,10 +181,10 @@ class Pawn < Piece
 			# moves << Move.new(self, position.vertical(-1).horizontal(1))
 		end
 
-		if board.game.pawn_just_moved_twice
+		if board.en_passantable_pawn
 			en_passantable_pawn = board.en_passantable_pawn
 			if (en_passantable_pawn.position.file == position.file and ((en_passantable_pawn.position.rank - position.rank).abs == 1))
-				moves << Move.new(self, en_passantable_pawn.position.vertical(player.white ? 1 : -1), en_passantable_pawn )
+				moves << Move.new(self, en_passantable_pawn.position.vertical(player.white ? 1 : -1) )
 			end
 		end
 

@@ -1,0 +1,8 @@
+<h1> Moves for <%= @chess_game.active_game_player.white ? "White" : "Black" %></h1>
+
+Number of Moves: <%= @moves.length %>
+<ul>
+<% @moves.each do |m| %>
+	<li><%= m %></li>
+<% end %>
+</ul>

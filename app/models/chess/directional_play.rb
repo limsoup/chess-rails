@@ -1,7 +1,7 @@
 # require Matrix
-require 'matrix'
-require 'directional'
-require 'accumulation'
+require_relative 'matrix'
+require_relative './directional'
+require_relative './accumulation'
 #initial vectors
 #rotate 
 #use the class

@@ -1,18 +1,13 @@
 <p id="notice"><%= notice %></p>
 
 <p>
-  <strong>fen:</strong>
-  <%= @chess_game.fen %>
-</p>
-
-<p>
   <strong>White player:</strong>
-  <%= @chess_game.white_player_id %>
+  <%= @chess_game.white_player.email %>
 </p>
 
 <p>
   <strong>Black player:</strong>
-  <%= @chess_game.black_player_id %>
+  <%= @chess_game.black_player.email %>
 </p>
 
 <p>
@@ -24,6 +19,48 @@
   <strong>Black accept:</strong>
   <%= @chess_game.black_accept %>
 </p>
+<div id="game">
+  <div id="board">
+    <% ( current_user.id == @chess_game.black_player.id ? (0..7).to_a : (0..7).to_a.reverse ).each do |file| %>
+      <div class="row">
+        <% ( current_user.id == @chess_game.black_player.id ? (0..7).to_a.reverse : (0..7).to_a ).each do |rank| %>
+          <div class="cell" data-rank="<%= rank%8 %>" data-file="<%= file %>"  id="<%= (rank+97).chr + ((file%8)+1).to_s %>" ></div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  <div id="move-list">
+  </div>
+  <div class="promotion-window">
+    <h2>Choose Your Promotion</h2>
+    <div class="piece queen" data-promotion='Q'></div>
+    <div class="piece knight" data-promotion='N'></div>
+    <div class="piece rook" data-promotion='R'></div>
+    <div class="piece bishop" data-promotion='B'></div>
+  </div>
+
+  <div class="players">
+    <div class="white">
+      <div class="icon"> </div>
+      <div class="name"> <%= @chess_game.white_player.email %> </div>
+      <div class="captures"> </div>
+    </div>
+    <div class="black">
+      <div class="icon"> </div>
+      <div class="name"> <%= @chess_game.black_player.email %> </div>
+      <div class="captures"> </div>
+    </div>
+  </div>
+
+  <script>
+    app_data = <%= raw @app_data.to_json %>;
+    game = {};
+  </script>
+</div>
+
+<br/>
+<br/>
+<br/>
 
 <%= link_to 'Edit', edit_chess_game_path(@chess_game) %> |
 <%= link_to 'Back', chess_games_path %>

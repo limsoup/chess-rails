@@ -1,7 +1,8 @@
 class ChessGamesController < ApplicationController
-  before_filter :authenticate
-  before_action :set_chess_game, only: [:show, :edit, :update, :destroy, :accept]
-
+  before_action :authenticate
+  before_action :set_chess_game, only: [:show, :edit, :update, :destroy, :accept, :moves, :do_move, :game_state, :ping]
+  before_action :is_active_player?, only: [:do_move, :moves]
+  before_action :load_game, only: [:show, :do_move, :moves, :game_state]
   # GET /chess_games
   # GET /chess_games.json
   def index
@@ -11,6 +12,27 @@ class ChessGamesController < ApplicationController
   # GET /chess_games/1
   # GET /chess_games/1.json
   def show
+    @app_data = @chess_game.app_data
+    @app_data.merge!({
+      my_player: {id: current_user.id},
+      get_moves_url: moves_chess_game_url(@chess_game),
+      get_game_state_url: game_state_chess_game_url(@chess_game),
+      ping_url: ping_chess_game_url(@chess_game),
+      do_moves_url: do_move_chess_game_url(@chess_game)
+    })
+  end
+
+  def ping
+    respond_to do |format|
+      format.json {render json:@chess_game.ping }
+    end
+  end
+
+  def game_state
+    @app_data = @chess_game.game_data
+    respond_to do |format|
+      format.json {render json:@chess_game.game_data }
+    end
   end
 
   # GET /chess_games/new
@@ -41,12 +63,38 @@ class ChessGamesController < ApplicationController
     end
   end
 
+  def moves
+    # allow if is active player
+    respond_to do |format|
+      @moves = @chess_game.get_moves_short
+      format.html {render 'moves' }
+      format.json {render json: @moves, status: :ok}
+    end
+  end
+
+  def do_move
+    # allow if is active player
+    respond_to do |format|
+      @chess_game.do_move(move_params)
+      @chess_game.save
+      format.json {render json:@chess_game.game_data }
+    end
+  end
+
+  def state
+    respond_to do |format|
+      @chess_game.do_move(move_params)
+      @chess_game.save
+      format.json {render json:@chess_game.game_data }
+    end
+  end
+
   def accept
     # @chess_game.black_player = current_user.id
     # @chess_game.black_accept = game_acceptance_params
     respond_to do |format|
-      if (current_user.id == @chess_game.black_player_id and @chess_game.black_accept == nil)
-        @chess_game.black_accept = true
+      if current_user.id == @chess_game.black_player_id #and @chess_game.black_accept == nil
+        @chess_game.accept
         if @chess_game.save
           format.html { redirect_to @chess_game, status: :ok, notice: 'Chess game was successfully updated.' }
           format.json { render :show, status: :created, location: @chess_game }
@@ -95,13 +143,23 @@ class ChessGamesController < ApplicationController
     def set_chess_game
       @chess_game = current_user.games.find(params[:id])
       # @chess_game = ChessGame.find(params[:id])
-      redirect_to new_user_path unless @chess_game
+      redirect_to current_user unless @chess_game
     end
 
+    def is_active_player?
+      respond_to {|format| format.json {head :no_content} } if @chess_game.active_player.id != current_user.id
+    end
+
+    def load_game
+      @chess_game.load_game
+    end
     # Never trust parameters from the scary internet, only allow the white list through.
     # def game_acceptance_params
     #   params.require(:black_accept)
     # end
+    def move_params
+      params.require(:move).permit(:origin, :destination, :promotion)
+    end
 
     def chess_game_params
       params.require(:chess_game).permit(:black_player_id, :fen)
