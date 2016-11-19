@@ -17,6 +17,8 @@ Rails.application.routes.draw do
       get 'destroy', as: 'destroy'
       get 'accept', as: 'accept'
       get 'moves', as: 'moves'
+      get 'reset', as: 'reset'
+      get 'recalculate', as: 'recalculate'
       get 'ping', as: 'ping'
       get 'game_state', as: 'game_state'
       post 'do_move', as: 'do_move'

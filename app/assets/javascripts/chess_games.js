@@ -98,14 +98,10 @@ $(document).on('turbolinks:load', function (){
 						+ (Math.ceil(i/2.0)+1)
 					+"</span>"
 					+ "<a class='move' href='#'data-half-move-num='"+i+"'>"
-						+ movelist[i].origin 
-						+ " " + movelist[i].destination 
-						+ " " + ( movelist[i].promotion ? movelist[i].promotion : " ")
+						+ movelist[i]
 					+ "</a>"
 					+ ( i+1 < movelist.length ? ("<a class='move' href='#'data-half-move-num='"+(i+1)+"'>"
-						+ movelist[i+1].origin 
-						+ " " + movelist[i+1].destination 
-						+ " " + ( movelist[i+1].promotion ? movelist[i+1].promotion : " ")
+						+ movelist[i+1]
 					+ "</a>") : '')
 				+"</div>"
 				ml.append(move_row_str);
@@ -113,6 +109,7 @@ $(document).on('turbolinks:load', function (){
 		}
 		game.setup_captures = function (captures, color) {
 			var captures_cont = $("."+color+" .captures");
+			captures_cont.empty();
 			for (var i = captures.length - 1; i >= 0; i--) {
 				captures_cont.append(make_piece(captures[i]));
 			}
@@ -129,7 +126,7 @@ $(document).on('turbolinks:load', function (){
 				success: function (data) {
 					this.setup(data);
 				},
-				failure: function (jqXHR, textStatus, errorThrown) {
+				error: function (jqXHR, textStatus, errorThrown) {
 					$(".waiting-indicator").addClass("active");
 					console.log("jqXHR : ");
 					console.log(jqXHR);
@@ -141,7 +138,7 @@ $(document).on('turbolinks:load', function (){
 				},
 				data: {"move": move}
 			};
-			do_move_options.failure = _.bind(do_move_options.failure, this);
+			do_move_options.error = _.bind(do_move_options.error, this);
 			do_move_options.success = _.bind(do_move_options.success, this);
 			do_move_options.beforeSend = _.bind(do_move_options.beforeSend, this);
 			$.ajax(this.do_moves_url, do_move_options);
@@ -185,7 +182,7 @@ $(document).on('turbolinks:load', function (){
 						this.get_state(data);
 					}
 				},
-				failure: function(jqXHR, textStatus, errorThrown) {
+				error: function(jqXHR, textStatus, errorThrown) {
 					$(".waiting-indicator").addClass("active");
 					console.log("jqXHR : ");
 					console.log(jqXHR);
@@ -196,7 +193,7 @@ $(document).on('turbolinks:load', function (){
 					alert("error, check log");
 				}
 			};
-			ping_options.failure = _.bind(ping_options.failure, this);
+			ping_options.error = _.bind(ping_options.error, this);
 			ping_options.success = _.bind(ping_options.success, this);
 			ping_options.beforeSend = _.bind(ping_options.beforeSend, this);
 			$.ajax(this.ping_url, ping_options);
@@ -218,7 +215,7 @@ $(document).on('turbolinks:load', function (){
 						this.setup(data);
 					// }
 				},
-				failure: function(jqXHR, textStatus, errorThrown) {
+				error: function(jqXHR, textStatus, errorThrown) {
 					$(".waiting-indicator").addClass("active");
 					console.log("jqXHR : ");
 					console.log(jqXHR);
@@ -229,19 +226,13 @@ $(document).on('turbolinks:load', function (){
 					alert("error, check log");
 				}
 			};
-			get_state_options.failure = _.bind(get_state_options.failure, this);
+			get_state_options.error = _.bind(get_state_options.error, this);
 			get_state_options.success = _.bind(get_state_options.success, this);
 			get_state_options.beforeSend = _.bind(get_state_options.beforeSend, this);
 			$.ajax(this.get_game_state_url, get_state_options);
 		}
 		game.set_available_moves = function (data) {
 			this.current_available_moves  = data;
-			/*this.current_available_moves  = [
-				{"origin":'b2', "destination":'b4', "promotion":null},
-				{"origin":'c2', "destination":'c4', "promotion":null},
-				{"origin":'d2', "destination":'d4', "promotion":null},
-				{"origin":'e2', "destination":'e4', "promotion":null},
-			];*/
 			this.moves_dict = {};
 			_.each(this.current_available_moves, _.bind(function (v,k) {
 				if(_.isUndefined(this.moves_dict[v["origin"]])){
@@ -318,15 +309,11 @@ $(document).on('turbolinks:load', function (){
 				}
 				if(el.classList.contains('pawn')){
 					if(el.classList.contains('white')){
-						/* if(Math.abs(parseInt(target.dataset.rank - source.dataset.rank) > 0) && target.querySelector('.piece').length == 1){
-							this.capture(document.getElementById('#'+short_position(source.dataset.rank, source.dataset.file -1)+' .piece'));
-							this.state = "awaiting move response";
-						}else */
 						if(parseInt(target.dataset.file) == 7){
 							this.state = "awaiting promotion";
 							this.pending_promotion_move  = {
 								origin: source.id, //short_position(source.dataset.rank, source.dataset.file),
-								destination: targe.id, //short_position(target.dataset.rank, target.dataset.file),
+								destination: target.id, //short_position(target.dataset.rank, target.dataset.file),
 								promotion: null
 							};
 							$(".promotion-window").addClass('active');
@@ -334,10 +321,6 @@ $(document).on('turbolinks:load', function (){
 							return 0;
 						}
 					}else {
-						/* if(Math.abs(parseInt(target.dataset.rank - source.dataset.rank) > 0) && target.querySelector('.piece').length == 1){
-							this.capture(document.getElementById('#'+short_position(source.dataset.rank, source.dataset.file -1)+' .piece'));
-							this.state = "awaiting move response";
-						}else */
 						if(parseInt(target.dataset.file) == 0){
 							this.state = "awaiting promotion";
 							this.pending_promotion_move = {
@@ -368,33 +351,6 @@ $(document).on('turbolinks:load', function (){
 
 			this.setup(app_data.game_data);
 		};
-
-		// var app_data = { 
-		// 	get_moves_url: "/chess_games/4/do_moves",
-		// 	do_moves_url: "/chess_games/4/moves"
-		// 	white_player: {
-		// 		id: 1,
-		// 		accepted: true
-		// 	},
-		// 	black_player: {
-		// 		id: 2,
-		// 		accepted: true
-		// 	},
-		// 	my_player : {
-		// 		color: "white",
-		// 		id: "1"
-		// 	},
-		// 	game_data: {
-		// 		fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-		// 		white_captures : [],
-		// 		black_captures : [],
-		// 		movelist : [],
-		// 		game_status: "Started",
-		// 	}
-		// };
-
-		// var my_player = {color:"white", id:"1"};
-		
 
 		game.setup_app(app_data);
 	}

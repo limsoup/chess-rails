@@ -1,3 +1,4 @@
+# encoding: utf-8
 require_dependency "./move"
 
 module Directional
@@ -18,26 +19,19 @@ module Directional
 		end
 	end
 
-	def gather_legal_moves(ignore_king_danger = false)
-		# return [] if caller.length > 130
-		moves = Array.new
+	def calculate
+		# moves = Array.new
+		super
+		board.deregister_position position
 		initial_vectors.each do |vector_method_name|
 			self.send(vector_method_name) do |phase|
 				with_rotations(phase) do |direction|
 					move = Move.new(self, self.position)
-					# puts "starting at #{move.destination.short}"
-					moveset = aggregator do
-						move = Move.new(self, move.destination.horizontal(direction[0,0]).vertical(direction[0,1]))
-						# puts "destination #{move.destination.short}, keep-going: #{!board.get_piece move.destination}"
-						# puts board.get_piece(move.destination).player.white ? "white" : "black" if board.get_piece(move.destination)
-						[move, (board.legal? move), (board.legal? move and !(board.get_piece move.destination) )]
-					end
-					moves.concat moveset
+					aggregator(direction)
 				end
 			end
 		end
-		# puts "-------"
-		moves
+		# moves
 	end
 
 

@@ -44,7 +44,7 @@ class ChessBoard
 		self.bqc = fen_obj[:castling_fen].include? 'q'
 		self.bkc = fen_obj[:castling_fen].include? 'k'
 
-		if fen_obj[:castling_fen] != '-'
+		if fen_obj[:en_passantable_pawn_fen] != '-'
 			self.en_passantable_pawn = get_piece(Position.new_short(fen_obj[:castling_fen]))
 		end
 

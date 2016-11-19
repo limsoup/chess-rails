@@ -20,4 +20,5 @@ class Move
 		end_pos = Position.new_short(end_square)
 		[start_pos, end_pos, promo_code]
 	end
+
 end

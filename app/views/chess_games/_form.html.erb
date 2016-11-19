@@ -12,12 +12,8 @@
   <% end %>
 
   <div class="field">
-    <%= f.label :fen %><br>
-    <%= f.text_field :fen %>
-  </div>
-  <div class="field">
     <%= f.label :black_player_id %><br>
-    <%= f.select :black_player_id do %>
+    <%= f.select(:black_player_id ) do %>
       <% @users.each do |u| -%>
         <% unless u.id == current_user.id %>
           <%= content_tag(:option, u.email, value: u.id) %>

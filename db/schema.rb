@@ -11,22 +11,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161107202136) do
+ActiveRecord::Schema.define(version: 20161116161448) do
 
   create_table "chess_games", force: :cascade do |t|
-    t.string   "fen",              default: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     t.integer  "white_player_id"
     t.integer  "black_player_id"
     t.boolean  "white_accept"
     t.boolean  "black_accept"
-    t.datetime "created_at",                                                                            null: false
-    t.datetime "updated_at",                                                                            null: false
-    t.text     "movelist",         default: "--- []\n"
-    t.text     "past_states",      default: "--- []\n"
+    t.datetime "created_at",                               null: false
+    t.datetime "updated_at",                               null: false
     t.integer  "active_player_id"
     t.string   "game_status",      default: "Not Started"
-    t.text     "white_captures",   default: "--- []\n"
-    t.text     "black_captures",   default: "--- []\n"
+    t.text     "board_marshal"
   end
 
   create_table "users", force: :cascade do |t|

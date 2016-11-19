@@ -1,29 +1,38 @@
-# require Matrix
+# encoding: utf-8
 require 'matrix'
-# require 'math'
 require_dependency './directional'
 require_dependency './accumulation'
-#initial vectors
-#rotate 
-#use the class
-#push_forward
 
 
 
 class Piece
-	attr_accessor :initial_vectors, :position, :board, :player #, :has_moved, :piece_id_for_game
+	attr_accessor :initial_vectors, :position, :board, :color
 
-	def initialize(player, board, position) #, piece_id_for_game
-		self.player = player
+	def initialize(color, board, position) 
+		self.color = color
 		self.board = board
 		self.position = position
-		# self.has_moved = false
-		#self.piece_id_for_game = piece_id_for_game
 	end
-	
+
+	def register_watch_if_in_bounds(current_position)
+		if current_position.in_bounds?
+			blocker = board.get_piece current_position
+			capture = blocker if blocker and blocker.color != color
+			board.register_watch({
+				can_move: (!!capture or !blocker),
+				can_attack: (!!capture or !blocker),
+				watcher_position: self.position.short,
+				watched_position: current_position.short
+			})
+		end
+	end
 
 	def printPiece
-		self.player.white ? self.class::PrintChar.upcase : self.class::PrintChar
+		(self.color == 'white') ? self.class::PrintChar.upcase : self.class::PrintChar
+	end
+
+	def calculate
+		board.deregister_position position
 	end
 end
 
@@ -44,80 +53,64 @@ class King < Piece
 	include Directional::Diagonally
 	include OnceOnPath
 
+
 	PrintChar = 'k'
-	def gather_legal_moves(ignore_king_danger = false)
-		moves = super
-		if ignore_king_danger == false and board.game.is_check_simulation == false
-			#kingside castle
-			valid_ksc = true
+	def calculate
+		super
 
-			targeted_positions = player.opponent.pieces.flat_map do |opponent_piece|
-				opponent_piece.gather_legal_moves(true).map do |opponent_move|
-					opponent_move.destination
+		#since this gets recalculated for every move, so we don't need to watch everything that could affect it, which would be inefficient anyways
+		# moves.reject! do |move|
+		# 	get_cell(move.destination)[:watched_by].any? do |watch|
+		# 		watch[:watcher_position].color != self.color 
+		# 	end
+		# end
+
+		#kingside castle
+		valid_ksc = true
+		if !board.in_check? and (color == "white" ? board.wkc : board.bkc )
+			[1,2].each do |square|
+				between_pos = position.horizontal(square)
+				if (board.get_piece(between_pos) or 
+					board.get_cell(position)[:watched_by].any? { |watch| board.get_piece(watch[:watcher_position]).color != self.color and watch[:can_attack] == true  })
+					valid_ksc = false 
 				end
 			end
-			# if board.game.debug
-			# 	puts "kingside"
-			# 	puts "board.in_check?: #{board.in_check?(player)}"
-			# 	puts "has_moved: #{has_moved}"
-			# 	puts "kSRook: #{kSRook}"
-			# 	puts "kSRook.has_moved: #{kSRook.has_moved}"
-			# end
-			if !board.in_check?(player) and (player.white ? board.wkc : board.bkc )
-				# kSRook = board.get_piece(Position.new(7,position.file))
-				between_pos = position
-				[1,2].each do |square|
-					between_pos = position.horizontal(1)
-					if board.get_piece(between_pos) or targeted_positions.include?(between_pos)
-						# if board.game.debug
-						# 	puts "board.get_piece(between_pos) #{board.get_piece(between_pos)}"
-						# 	puts "targeted_positions.include?(between_pos) #{targeted_positions.include?(between_pos)}"
-						# end
-						valid_ksc = false 
-					end
-				end
-			else
-				valid_qsc = false
-			end
-
-			if valid_ksc
-				moves << Move.new(self, position.horizontal(2))
-			end
-
-			#queenside castle
-
-			# if board.game.debug
-			# 	puts "queenside"
-			# 	puts "board.in_check?: #{board.in_check?(player)}"
-			# 	puts "has_moved: #{has_moved}"
-			# 	puts "qSRook: #{qSRook}"
-			# 	puts "qSRook.has_moved: #{qSRook.has_moved}"
-			# end
-			valid_qsc = true
-			if !board.in_check?(player) and (player.white ? board.wqc : board.bqc )
-				# qSRook = board.get_piece(Position.new(0,position.file))
-				[1,2,3].each do |square|
-					between_pos = position.horizontal(-1)
-					if board.get_piece(between_pos) or targeted_positions.include?(between_pos)
-
-						# if board.game.debug
-						# 	puts "board.get_piece(between_pos) #{board.get_piece(between_pos)}"
-						# 	puts "targeted_positions.include?(between_pos) #{targeted_positions.include?(between_pos)}"
-						# end
-						valid_qsc = false
-					end
-				end
-			else
-				valid_qsc = false
-			end
-
-			if valid_qsc
-				moves << Move.new(self, position.horizontal(-2))
-			end
-
+		else
+			valid_ksc = false
 		end
-		
-		moves
+
+		if valid_ksc
+			board.register_watch({
+				can_move: true,
+				can_attack: false,
+				watcher_position: position.short,
+				watched_position: position.horizontal(2).short
+			})
+		end
+
+		#queenside castle
+
+		valid_qsc = true
+		if !board.in_check? and (color == "white" ? board.wqc : board.bqc )
+			[1,2,3].each do |square|
+				between_pos = position.horizontal(-1*square)
+				if (board.get_piece(between_pos) or 
+					board.get_cell(position)[:watched_by].any? { |watch| board.get_piece(watch[:watcher_position]).color != self.color and watch[:can_attack] == true  })
+					valid_qsc = false 
+				end
+			end
+		else
+			valid_qsc = false
+		end
+
+		if valid_qsc
+			board.register_watch({
+				can_move: true,
+				can_attack: false,
+				watcher_position: position.short,
+				watched_position: position.horizontal(-2).short
+			})
+		end
 	end
 end
 
@@ -153,54 +146,123 @@ end
 class Pawn < Piece
 	PrintChar = 'p'
 
-	def gather_legal_moves(ignore_king_danger = false)
-		# return [] if caller.length > 130
-		moves = []
-		moves << Move.new(self, position.vertical(player.white ? 1 : -1))
-		if (position.file == 1 and player.white) or (position.file == 6 and !(player.white))
-			moves << Move.new(self, position.vertical(player.white ? 2 : -2))
-		end
-
-		
-		if(player.white)
-			if(board.get_piece(position.vertical(1).horizontal(-1)))
-				moves << Move.new(self, position.vertical(1).horizontal(-1))
-			end
-			if(board.get_piece(position.vertical(1).horizontal(1)))
-				moves << Move.new(self, position.vertical(1).horizontal(1))
-			end
-		else
-
-			if(board.get_piece(position.vertical(-1).horizontal(-1)))
-				moves << Move.new(self, position.vertical(-1).horizontal(-1))
-			end
-			if(board.get_piece(position.vertical(-1).horizontal(1)))
-				moves << Move.new(self, position.vertical(-1).horizontal(1))
-			end
-			# moves << Move.new(self, position.vertical(-1).horizontal(-1))
-			# moves << Move.new(self, position.vertical(-1).horizontal(1))
-		end
-
-		if board.en_passantable_pawn
-			en_passantable_pawn = board.en_passantable_pawn
-			if (en_passantable_pawn.position.file == position.file and ((en_passantable_pawn.position.rank - position.rank).abs == 1))
-				moves << Move.new(self, en_passantable_pawn.position.vertical(player.white ? 1 : -1) )
-			end
-		end
-
-		legal_moves = []
-
-		moves.each do |move|
-			if board.legal?(move)
-				if move.destination.file == 0 or move.destination.file == 7
-					promotion_moves = ['q','n','b','r'].map do |c|
-						move.promotion = c
-					end
-					legal_moves = legal_moves.concat promotion_moves
-				else
-					legal_moves << move
+	def register_watch_if_in_bounds(current_position, diag = false)
+		if current_position.in_bounds?
+			blocker = board.get_piece current_position
+			capture = blocker if blocker and blocker.color != color
+			watch_obj = {
+				can_move: ((!!capture and diag) or (!blocker and !diag)) ,
+				can_attack: (!!capture or diag),
+				watcher_position: self.position.short,
+				watched_position: current_position.short
+			}
+			if (color == "white" and current_position.file == 7) or (color == "black" and current_position.file == 0)
+				"QNRB".split.each do |pr|
+					watch_obj[:promotion] = pr
+					board.register_watch(watch_obj)
 				end
+			else
+				board.register_watch(watch_obj)
 			end
 		end
+	end
+
+
+	def calculate
+		super
+		if color == "white"
+			#move forward
+			register_watch_if_in_bounds(position.vertical(1))
+			register_watch_if_in_bounds(position.vertical(2)) if position.file == 1
+			#diagonals
+			register_watch_if_in_bounds(position.vertical(1).horizontal(-1), true)
+			register_watch_if_in_bounds(position.vertical(1).horizontal(1), true)
+			#watch for en passants
+			if position.horizontal(1).in_bounds? and position.rank == 4
+				board.register_watch({
+					can_move: false,
+					can_attack: false,
+					watcher_position: self.position.short,
+					watched_position: position.horizontal(1).short,
+					watcher_color: color
+				})
+			end
+			if position.horizontal(-1).in_bounds? and position.rank == 4
+				board.register_watch({
+					can_move: false,
+					can_attack: false,
+					watcher_position: self.position.short,
+					watched_position: position.horizontal(-1).short,
+					watcher_color: color
+				})
+			end
+		else 
+			#move forward
+			register_watch_if_in_bounds(position.vertical(-1))
+			register_watch_if_in_bounds(position.vertical(-2)) if position.file == 6
+			#diagonals
+			register_watch_if_in_bounds(position.vertical(-1).horizontal(-1), true)
+			register_watch_if_in_bounds(position.vertical(-1).horizontal(1), true)
+			#watch for en passants
+			if position.horizontal(1).in_bounds?  and position.rank == 3
+				board.register_watch({
+					can_move: false,
+					can_attack: false,
+					watcher_position: self.position.short,
+					watched_position: position.horizontal(1).short,
+					watcher_color: color
+				})
+			end
+			if position.horizontal(-1).in_bounds? and position.rank == 3
+				board.register_watch({
+					can_move: false,
+					can_attack: false,
+					watcher_position: self.position.short,
+					watched_position: position.horizontal(-1).short,
+					watcher_color: color
+				})
+			end
+		end
+
+		puts "board.en_passantable_pawn_position_short"
+		puts board.en_passantable_pawn_position_short
+		if board.en_passantable_pawn_position_short and board.get_piece(board.en_passantable_pawn_position_short).color != color
+			en_passantable_pawn = board.get_piece(board.en_passantable_pawn_position_short)
+			if (en_passantable_pawn.position.file == position.file and ((en_passantable_pawn.position.rank - position.rank).abs == 1))
+				board.register_watch({
+					can_move: true,
+					can_attack: false,
+					watcher_position: self.position.short,
+					watched_position: en_passantable_pawn.position.vertical(color == "white" ? 1 : -1).short,
+					remove_after_en_passant: true,
+					watcher_color: color
+				})
+				board.register_watch({
+					can_move: false,
+					can_attack: true,
+					watcher_position: self.position.short,
+					watched_position: en_passantable_pawn.position.short,
+					remove_after_en_passant: true,
+					watcher_color: color
+				})
+
+				# moves << Move.new(self, en_passantable_pawn.position.vertical(color == "white" ? 1 : -1) )
+			end
+		end
+
+		# legal_moves = []
+
+		# moves.each do |move|
+		# 	if board.in_bounds?(points)
+		# 		if move.destination.file == 0 or move.destination.file == 7
+		# 			promotion_moves = ['q','n','b','r'].map do |c|
+		# 				move.promotion = c
+		# 			end
+		# 			legal_moves << promotion_moves
+		# 		else
+		# 			legal_moves << move
+		# 		end
+		# 	end
+		# end
 	end
 end
