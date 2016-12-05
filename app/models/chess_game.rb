@@ -17,7 +17,7 @@ class ChessGame < ActiveRecord::Base
 	scope :waiting, -> {where("white_accept = ? AND black_accept IS NULL", true)}
 	
 	def self.waiting_on(user)
-		where("(white_player_id == ? AND white_accept IS NULL) OR (black_player_id == ? AND black_accept IS NULL)", user.id, user.id )
+		where("(white_player_id = ? AND white_accept IS NULL) OR (black_player_id = ? AND black_accept IS NULL)", user.id, user.id )
 	end
 
 	def initialize(attributes = {}, options = {})
