@@ -1,190 +1,355 @@
 // Place all the styles related to the ChessGames controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
-
 body {
-	font-family: Lato;
+  font-family: Lato;
+  margin: 0;
+  padding-top: 131px;
+}
+* {
+  box-sizing: border-box;
 }
 
 a {
-	text-decoration: none;
+  text-decoration: none;
+}
+a:hover{
+  cursor: pointer;
 }
 
+h4, h3{
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+// util
+.clear { clear:both;}
+.break { height: 10px;}
+.clearfix:after {
+  content: "";
+  display: table;
+  clear: both;
+}
 
-#game {
-	position: relative;
-	width: 900px;
-	overflow: auto;
+#chess_game {
+  margin: 0 auto;
+  position: relative;
+  width: 925px;
+  overflow: auto;
 }
 
 #board {
-	width: 640px;
-	float: left;
+  width: 640px;
+  float: left;
+}
+/*internet explorer scrollbalken*/
+body{
+  scrollbar-base-color: #C0C0C0;
+  scrollbar-base-color: #C0C0C0;
+  scrollbar-3dlight-color: #C0C0C0;
+  scrollbar-highlight-color: #C0C0C0;
+  scrollbar-track-color: #EBEBEB;
+  scrollbar-arrow-color: black;
+  scrollbar-shadow-color: #C0C0C0;
+  scrollbar-dark-shadow-color: #C0C0C0;
+}
+/*mozilla scrolbalken*/
+@-moz-document url-prefix(http://),url-prefix(https://) {
+  scrollbar {
+     -moz-appearance: none !important;
+     background: rgb(0,255,0) !important;
+  }
+  thumb,scrollbarbutton {
+     -moz-appearance: none !important;
+     background-color: rgb(0,0,255) !important;
+  }
+
+  thumb:hover,scrollbarbutton:hover {
+     -moz-appearance: none !important;
+     background-color: rgb(255,0,0) !important;
+  }
+
+  scrollbarbutton {
+     display: none !important;
+  }
+
+  scrollbar[orient="vertical"] {
+    min-width: 15px !important;
+  }
+}
+/**/
+#movelist {
+    // position: absolute;
+    top: 0; bottom: 0; left: 0; right: 0;
+    margin: 20px;
+
+    // border: 4px solid rgba(0, 0, 0, 0.2);
+    overflow: auto;
+    // background-color: whiteSmoke;
+}
+::-webkit-scrollbar {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border: solid whiteSmoke 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.3);
 }
 
-html ::-webkit-scrollbar{width:9px;height:9px;}
-html ::-webkit-scrollbar-button:start:decrement,#doc ::-webkit-scrollbar-button:end:increment{display:block;height:0;background-color:transparent;}
-html ::-webkit-scrollbar-track-piece{background-color:#FAFAFA;-webkit-border-radius:0;-webkit-border-bottom-right-radius:8px;-webkit-border-bottom-left-radius:8px;}
-html ::-webkit-scrollbar-thumb:vertical{height:50px;background-color:#999;-webkit-border-radius:8px;}
-html ::-webkit-scrollbar-thumb:horizontal{width:50px;background-color:#999;-webkit-border-radius:8px;}
 
-#move-list {
-	box-sizing: border-box;
-	width: 260px;
-	height: 640px;
-	overflow-y: scroll;
-	padding: 20px 0px 20px 40px;
-	margin: 0;
-	float: left;
-	background-color: #f1f1f1;
-	.move-row {
-	}
-	.label {
-		display: inline-block;
-		width: 10px;
-		font-size: 13px ;
-	}
-	.label:after {
-		content: ".";
-	}
-	.move {
-		display: inline-block;
-		padding: 10px;
-		width: 55px;
-		font-size: 19px ;
-	}
+.row {
+  height: 80px;
+  width: 640px;
+  .piece {
+    width: 80px;
+    height: 80px;
+  }
 }
-.row { 
-	height: 80px;
-	width: 640px;
-	.piece {
-		width: 80px;
-		height: 80px;
-	}
-}
+
 .cell {
-	width: 80px;
-	height: 80px;
-	float:left;
+  width: 80px;
+  height: 80px;
+  float: left;
+  overflow: hidden;
 }
 
 .piece {
-	background-color:transparent;
-	background-image: url('/assets/pieces.png');
-	background-size: 600% 200%;
-	cursor: move;
-	cursor: grab;
-	cursor: -moz-grab;
-	cursor: -webkit-grab;
+  background-color: transparent;
+  background-image: url('/assets/pieces.png');
+  background-size: 600% 200%;
+  cursor: move;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
 }
-.piece.white { 	background-position-y: 0%; 		}
-.piece.black { 	background-position-y: 100%; 	}
 
-.king {  		background-position-x: 0%; 		}
-.queen {  		background-position-x: 20%;		}
-.bishop {  		background-position-x: 40%;		}
-.knight {  		background-position-x: 60%;		}
-.rook {  		background-position-x: 80%;		}
-.pawn {  		background-position-x: 100%;	}
+.piece.white {
+  background-position-y: 0%;
+}
+
+.piece.black {
+  background-position-y: 100%;
+}
+
+.king {
+  background-position-x: 0%;
+}
+
+.queen {
+  background-position-x: 20%;
+}
+
+.bishop {
+  background-position-x: 40%;
+}
+
+.knight {
+  background-position-x: 60%;
+}
+
+.rook {
+  background-position-x: 80%;
+}
+
+.pawn {
+  background-position-x: 100%;
+}
 
 .row:nth-child(even) {
-	.cell:nth-child(even){
-		background-color: lightgray;
-	}
-	.cell:nth-child(odd){
-		background-color: darkgray;
-	}
+  .cell:nth-child(even) {
+    background-color: lightgray;
+  }
+  .cell:nth-child(odd) {
+    background-color: darkgray;
+  }
 }
+
 .row:nth-child(odd) {
-	.cell:nth-child(even){
-		background-color: darkgray;
-	}
-	.cell:nth-child(odd){
-		background-color: lightgray;
-	}
+  .cell:nth-child(even) {
+    background-color: darkgray;
+  }
+  .cell:nth-child(odd) {
+    background-color: lightgray;
+  }
 }
 
 .players {
-	width: 640px;
-	height: 200px;
-	.white, .black {
-		width: 50%;
-		height: 200px;
+  width: 640px;
+  .player {
+    width: 50%;
+    .icon {
+      background-color: transparent;
+      background-image: url('/assets/pieces.png');
+      background-size: 600% 200%;
+      background-repeat: no-repeat;
+      background-position-y: 0%;
+      width: 80px;
+      height: 80px;
+      display: inline-block;
+      margin: 10px;
+    }
+    .mainblock{
+       width: calc(100% - 100px);
+       padding: 10px;
+       height: 100px;
+    }
+    .name {
+      height: 20px;
+      text-align: center;
+    }
+    .action {
+    	display: none;
+    }
+    .action.active {
+    	display: block;
+      margin:10px 0px;
+      text-align: center;
+      > * {
+        display: inline-block;
+        text-align: center;
+      }
+      #invite, #join, #join_and_create, #leave {
+        width: 100%;
+      }
+      #accept, #decline {
+        width: 50%;
+      }
+    }
 
-		.icon {
-			background-color:transparent;
-			background-image: url('/assets/pieces.png');
-			background-size: 600% 200%;
-			background-repeat: no-repeat;
-			background-position-y: 0%; 
-			width: 60px;
-			height: 60px;
-			display: inline-block;
-			margin: 10px;
-		}
-	}
-	.white {
-		float: left;
-		.icon, .name{
-			float: left;
-			background-position-x: 0%;
-		}
-	}
-	.black {
-		float: right;
-		.icon, .name{
-			text-align: right;
-			float: right;
-			background-position-y: 100%;
-		}
-	}
+    .captures {
+      display: none;
+      &.active { display: block;}
+      height: 60px;
+      width: 100%;
+      .piece {
+        width: 30px;
+        height: 30px;
+      }
+    }
+  }
+  .white {
+    float: left;
+    text-align: left;
+    .icon {
+      background-position-y: 0%;
+    }
+    .icon,
+    .mainblock {
+      float: left;
+    }
+    .captures .piece {
+      float: left;
+      background-position-y: 100%;
+    }
+  }
+  .black {
+    float: right;
+    text-align: right;
+    .icon {
+      background-position-y: 100%;
+    }
+    .icon,
+    .mainblock {
+      float: right;
+    }
+    .captures .piece {
+      float: right;
+      background-position-y: 0%;
+    }
+  }
+  // .name, .mainblock, .action, .captures, .player, .icon {
+  //   box-sizing: border-box;
+  //   // border: 1px dashed gray;
+  // }
 
-	.name, .captures{
-		width: 240px;
-		padding-top: 10px;
-	}
-
-	.captures {
-		.piece { 
-			width: 30px;
-			height: 30px; 
-		}
-	}
-
-	.white .captures {
-		float: left;
-	}
-	.black .captures {
-		float: right;
-	}
-	.white .captures .piece {
-		float: left;
-		background-position-y: 100%;
-	}
-	.black .captures .piece {
-		float: right;
-		background-position-y: 0%;
-	}
 }
 
+#sidebar {
+  box-sizing: border-box;
+  width: 280px;
+  padding: 0px 10px 10px 10px;
+  margin: 0;
+  float: left;
+  height: 640px;
+  #board-state-edit{
+    display: none;
+    &.active {
+      display: block;
+    }
+  }
+  .edit-piece-cell, .piece {
+    width: 45px;
+    height: 45px;
+  }
+  .edit-piece-cell {
+    float: left;
+  }
+
+  #movelist {
+    box-sizing: border-box;
+    overflow-y: scroll;
+    // background-color: #f1f1f1;
+    margin: 0px 25px 25px 25px;
+    padding-bottom: 25px;
+    // border-bottom: 1px dashed gray;
+    text-align: center;
+    max-height: 400px;
+    .move-row {}
+    .label {
+      display: inline-block;
+      width: 25px;
+      font-size: 15px;
+    }
+    .label:after {
+      content: ".";
+    }
+    .move {
+      display: inline-block;
+      padding: 3px;
+      width: 74px;
+      font-size: 15px;
+    }
+  }
+}
 
 .promotion-window {
-	position: absolute;
-    display: none;
-    width: 640px;
-    height: 640px;
-    top: 0;
-	background-color: rgba(255,255,255,.87);
-	&.active {display: block;}
-	.piece {
-		width: 100px;
-		height: 100px;
-		display: inline-block;
-		margin-top: 70px;
-		margin-bottom: 70px;
-		margin-left: calc(25% - 55px);
-		margin-right: calc(25% - 55px);
-	}
+  position: absolute;
+  display: none;
+  width: 640px;
+  height: 640px;
+  top: 0;
+  background-color: rgba(255, 255, 255, .87);
+  &.active {
+    display: block;
+  }
+  .piece {
+    width: 100px;
+    height: 100px;
+    display: inline-block;
+    cursor: pointer;
+    margin-top: 70px;
+    margin-bottom: 70px;
+    margin-left: calc(25% - 55px);
+    margin-right: calc(25% - 55px);
+  }
 }
 
 
+nav {
+  background-color: white;
+  position: fixed;
+  z-index: 10;
+  top: 0px;
+  height: 110px;
+  width: 100%;
+  font-size: 24px;
+  ul {
+    float: left;
+    text-align: left;
+    li {
+      display: inline-block;
+      padding: 30px;
+    }
+  }
+}

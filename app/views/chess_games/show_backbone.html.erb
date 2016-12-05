@@ -1,0 +1,68 @@
+<script type="text/template" id="player-template">
+	<div class="action">
+		<a href="#" class="join-game-btn">
+			Join Game
+		</a>
+	</div>
+</script>
+
+<script type="text/template" id="join-game-template">
+	<div class="action">
+		<a href="#" class="join-game-btn">
+			Join Game
+		</a>
+	</div>
+</script>
+
+<script type="text/template" id="invite-template">
+	<div class="action">
+		<select class="invite-select">
+			<option>Select</option>
+			{{ for(var i = 0; i < users.length; i++) { }}
+				<option value="{{= users[i].id }}">{{= users[i].email }}</option>
+			{{ } }}
+		</select>
+		<a href="#" class="invite-btn">Invite</a>
+	</div>
+</script>
+
+<script type="text/template" id="accept-decline-template">
+	<div class="action">
+		<a href="#" class="accept-btn">Accept</a>
+		<a href="#" class="decline-btn">Decline</a>
+	</div>
+</script>
+
+<script type="text/template" id="promotions-template"><!-- 
+	<div class="promotion-window"> -->
+	    <h2>Choose Your Promotion</h2>
+	    <div class="piece queen" data-promotion='Q'></div>
+	    <div class="piece knight" data-promotion='N'></div>
+	    <div class="piece rook" data-promotion='R'></div>
+	    <div class="piece bishop" data-promotion='B'></div>
+  	<!-- </div> -->
+</script>
+
+<script type="text/template" id="moveslist-template">
+	<!-- <div class="move-list"> -->
+		{{ for (var i = 0; i < movelist.length; i += 2) { }}
+			<div class='move-row'>
+				<span class='label'>{{= (Math.ceil(i/2.0)+1) }}</span>
+				<a class='move' href='#' data-half-move-num='{{= i }}'>
+					{{= movelist[i] }}
+				</a>
+				{{ if(i+1 < movelist.length) { }}
+					<a class='move' href='#' data-half-move-num='{{= (i+1) }}'>
+						{{= movelist[i+1] }}
+					</a>
+				{{ } }}
+			</div>
+		{{ } }}
+	<!-- </div> -->
+</script>
+
+
+<div id="game">
+  <div class="players">
+  </div>
+ </div>

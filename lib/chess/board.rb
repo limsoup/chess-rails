@@ -70,14 +70,14 @@ class ChessBoard
 		@past_states = to_load[:past_states]
 	end
 
-	def initialize(game_object)
+	def initialize(game_object, init_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" )
 		self.game = game_object
 
 		self.movelist = []
 		self.past_states = []
 		self.white_captures = []
 		self.black_captures = []
-		self.fen_str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+		self.fen_str = init_fen || "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 		fo = {}
 		fo[:board_fen], fo[:active_player_color_fen], fo[:castling_fen], fo[:en_passantable_pawn_fen], fo[:half_move_counter_fen], fo[:full_move_counter]  = self.fen_str.split
@@ -171,7 +171,7 @@ class ChessBoard
 
 		end
 		fo[:board_fen] = board_fen_array.join("/")
-		puts fo
+		# puts fo
 		self.fen_str = fo[:board_fen] +' '+ fo[:active_player_color_fen] +' '+ fo[:castling_fen] +' '+ fo[:en_passantable_pawn_fen] +' '+ fo[:half_move_counter_fen] +' '+ fo[:full_move_counter_fen]
 		 # = fo.values.join(' ')
 	end
@@ -261,16 +261,16 @@ class ChessBoard
 				is_capture = true
 				move_str += 'x'
 			end
-			puts "general destination: #{move.destination.short}"
+			# puts "general destination: #{move.destination.short}"
 			# set_at(move.destination, move.piece )
 			pawn_advance = move.piece.is_a?(Pawn)
 			move_str += move.destination.short
 			
 			if move.piece.is_a? King
-				if move.piece.player == "white"
-					self.white_king_position = self.destination
+				if move.piece.color == "white"
+					self.white_king_position = move.destination
 				else
-					self.black_king_position = self.destination
+					self.black_king_position = move.destination
 				end
 			end
 
@@ -279,47 +279,54 @@ class ChessBoard
 			end
 			
 			if move.promotion
-				promoted_piece = CharToPieceClassnameMap[move.promotion].new(piece.color, self, move.destination)
-				set_at(move.position, nil )
+				promoted_piece = CharToPieceClassnameMap[move.promotion].new(move.piece.color, self, move.destination)
+				set_at(move.piece.position, nil )
 				set_at(move.destination,promoted_piece)
 				move_str += "="+move.promotion
 			else
-				puts "piece short before move #{move.piece.position.short}"
+				# puts "piece short before move #{move.piece.position.short}"
 				set_at(move.destination,move.piece)
-				puts "piece after move #{move.piece.position.short}"
+				# puts "piece after move #{move.piece.position.short}"
 			end
 		end
 
-		print_board
+		# print_board
 
 
 		switch_player
 		log_move(move, is_capture, pawn_advance, move_str) 
 		update_fen
-
-		to_recalculate = []
-		# to_recalculate += vacated_piece_positions_to_deregister.flat_map do |watched_position|
-		# 	get_cell(watched_position)[:watched_by].map do |watch|
-		# 		watch[:watcher_position]
-		# 	end
-		# end
-
-		to_recalculate += populated_piece_positions
-
-		to_recalculate += populated_piece_positions.map{ |watched_position|
-			get_cell(watched_position)[:watched_by].map do |watch|
-				watch[:watcher_position]
-			end
-		}.flatten(1)
-
-		to_recalculate.uniq!
-		to_recalculate += (move.piece.color == "white") ? [white_king_position, black_king_position] : [black_king_position, white_king_position]
-
+		
 		vacated_piece_positions_to_deregister.each do |position|
 			deregister_position(position)
 		end
+		to_recalculate = []
+		to_recalculate += vacated_piece_positions_to_deregister.flat_map do |watched_position|
+			get_cell(watched_position)[:watched_by].map do |watch|
+				watch[:watcher_position]
+			end
+		end
+
+		to_recalculate += populated_piece_positions
+		# populated_piece_positions.each { |p| print "#{p} "  }
+
+		# puts "to recalculate"
+		to_recalculate += populated_piece_positions.map{ |watched_position|			
+			# print "\n"
+			# puts "---"
+			# puts watched_position.short
+			get_cell(watched_position)[:watched_by].map do |watch|
+				# print watch[:watcher_position] + " "
+				watch[:watcher_position]
+			end
+		}.flatten(1)
+		# print "\n"
+		to_recalculate.uniq!
+		to_recalculate += (move.piece.color == "white") ? [white_king_position, black_king_position] : [black_king_position, white_king_position]
 
 		to_recalculate.each do |position|
+			# puts position if !get_piece(position)
+			# puts position.short
 			get_piece(position).calculate
 		end
 
@@ -361,7 +368,7 @@ class ChessBoard
 
 				move_watches.concat (blocker_positions.map { |pos|
 									get_cell(pos)[:watched_by].select do |watch|
-										puts watch
+										# puts watch
 										watch[:can_move] and get_piece(watch[:watcher_position]).color == active_player_color
 									end
 								}.flatten(1))

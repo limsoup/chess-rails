@@ -157,9 +157,10 @@ class Pawn < Piece
 				watched_position: current_position.short
 			}
 			if (color == "white" and current_position.file == 7) or (color == "black" and current_position.file == 0)
-				"QNRB".split.each do |pr|
-					watch_obj[:promotion] = pr
-					board.register_watch(watch_obj)
+				"QNRB".split('').each do |pr|
+					dup_watch = watch_obj.dup
+					dup_watch[:promotion]  = pr
+					board.register_watch(dup_watch)
 				end
 			else
 				board.register_watch(watch_obj)
@@ -224,8 +225,8 @@ class Pawn < Piece
 			end
 		end
 
-		puts "board.en_passantable_pawn_position_short"
-		puts board.en_passantable_pawn_position_short
+		# puts "board.en_passantable_pawn_position_short"
+		# puts board.en_passantable_pawn_position_short
 		if board.en_passantable_pawn_position_short and board.get_piece(board.en_passantable_pawn_position_short).color != color
 			en_passantable_pawn = board.get_piece(board.en_passantable_pawn_position_short)
 			if (en_passantable_pawn.position.file == position.file and ((en_passantable_pawn.position.rank - position.rank).abs == 1))

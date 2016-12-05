@@ -1,4 +1,4 @@
-<nav>
+<nav class="clearfix">
 	<ul>
 		<li>
 			<a href="/">Home</a>
@@ -11,8 +11,6 @@
 			<a href="about">About</a>
 		</li>
 		-->
-	</ul>
-	<ul>
 	<% if current_user %>
 		<%= render '/layouts/logged_in_profile_nav' %>
 	<% else %>

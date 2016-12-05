@@ -1,0 +1,4 @@
+ngrok start -config ./ngrok.yml rails socketio
+redis-server
+node index.js
+bundle exec rails server -b0.0.0.0

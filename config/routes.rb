@@ -12,16 +12,19 @@ Rails.application.routes.draw do
   post 'login' => "sessions#create"
   get 'logout' => "sessions#destroy", as: 'logout'
 
-  resources :chess_games, only: [:new, :create, :destroy] do
+  resources :chess_games, only: [:new, :create, :destroy, :show] do
     member do
-      get 'destroy', as: 'destroy'
-      get 'accept', as: 'accept'
-      get 'moves', as: 'moves'
-      get 'reset', as: 'reset'
-      get 'recalculate', as: 'recalculate'
+      # post 'accept', as: 'accept'
+      # post 'decline', as: 'decline'
+      # post 'join', as: 'join'
+      # post 'leave', as: 'leave'
+      post 'rsvp', as: 'rsvp'
+      post 'invite', as: 'invite'
       get 'ping', as: 'ping'
-      get 'game_state', as: 'game_state'
+      get 'state', as: 'state'
       post 'do_move', as: 'do_move'
+      post 'reset', as: 'reset'
+      get 'recalculate', as: 'recalculate'
     end
   end
   # get 'register' => 'users#new', as: :register

@@ -1,0 +1,8 @@
+tunnels:
+  socketio:
+    proto: http
+    addr: 3020
+  rails:
+    proto: http
+    addr: 3000
+    

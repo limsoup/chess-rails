@@ -1,0 +1,149 @@
+<script type="text/template" id="game-template">
+  <div id="board">
+    
+  </div>
+  <div id="sidebar" class="clearfix">
+  	  <div id="board-state-edit">
+  	  	<h3>Game Setup</h3>
+  	  	<p>You can set up the game before you hit the "Join and Create" link</p>
+		<a href="/chess_games/new">Reset Board</a> | <a href="#" id="clear-pieces">Clear Pieces</a>
+  	  	<div class="break"></div>
+  	  	<h4>Pieces</h4>
+  	  	<div class="pieces">
+	  	  	<div class="edit-piece-cell cell"><div class="piece white queen"></div></div>
+		    <div class="edit-piece-cell cell"><div class="piece white rook"></div></div>
+		    <div class="edit-piece-cell cell"><div class="piece white knight"></div></div>
+		    <div class="edit-piece-cell cell"><div class="piece white bishop"></div></div>
+		    <div class="edit-piece-cell cell"><div class="piece white pawn"></div></div>
+		    <div class="break clear"></div>
+	  	  	<div class="edit-piece-cell cell"><div class="piece black queen"></div></div>
+		    <div class="edit-piece-cell cell"><div class="piece black rook"></div></div>
+		    <div class="edit-piece-cell cell"><div class="piece black knight"></div></div>
+		    <div class="edit-piece-cell cell"><div class="piece black bishop"></div></div>
+		    <div class="edit-piece-cell cell"><div class="piece black pawn"></div></div>
+		</div>
+		
+		
+		<div class="break clear"></div>
+		<h4>Half Moves</h4>
+	    <input type="number" name="half_moves" id="half_moves" max="49" min="0" value="0" />
+		<div class="break"></div>
+
+		<h4>En Passantable Pawn Position</h4>
+	    <input type="text" name=id="en_passantable" id="en_passantable" pattern="[a-hA-H][1-8]" />
+		<div class="break"></div>
+
+		<h4>Active Color</h4>
+		<input type="radio" name="active_color" id="active_color_white" value="w" checked />
+		<label for="active_color_white">White's Turn</label>
+	    <br/>
+	    <input type="radio" name="active_color" id="active_color_black" value="b" />
+		<label for="active_color_black">Black's Turn</label>
+	    <div class="break"></div>
+
+		<h4>Castling</h4>
+	    <input type="checkbox" name="wqc" id="wqc" class="castle" value="true" checked />
+	    <label for="wqc">White Queenside Castling</label>
+	    <br/>
+	    <input type="checkbox" name="wkc" id="wkc" class="castle" value="true" checked />
+	    <label for="wkc">White Kingside Castling</label>
+	    <br/>
+	    <input type="checkbox" name="bqc" id="bqc" class="castle" value="true" checked />
+	    <label for="bqc">Black Queenside Castling</label>
+	    <br/>
+	    <input type="checkbox" name="bkc" id="bkc" class="castle" value="true" checked />
+	    <label for="bkc">Black Kingside Castling</label>
+	    
+		
+
+  	  </div>
+	  <div id="movelist">
+	  </div>
+  </div>
+  <div class="promotion-window">
+    <h2>Choose Your Promotion</h2>
+    <div class="piece queen" data-promotion='Q'></div>
+    <div class="piece knight" data-promotion='N'></div>
+    <div class="piece rook" data-promotion='R'></div>
+    <div class="piece bishop" data-promotion='B'></div>
+  </div>
+
+  <div class="players clearfix">
+  	<div class="player white clearfix">
+  	</div>
+  	<div class="player black clearfix">
+  	</div>
+  </div>
+</script>
+
+<script type="text/template" id="board-template">
+	<@ _.each( ((player_color == "black") ? _.range(0,8) : _.range(7,-1)), function (file,i) { @>
+      <div class="row">
+      	<@ _.each( ((player_color == "black") ? _.range(7,-1) : _.range(0,8)), function(rank,j) { @>
+          <div class="cell" data-rank="<@= rank%8 @>" data-file="<@= file @>"  id="<@= String.fromCharCode(rank+97) + ((file%8)+1).toString() @>" ></div>
+        <@ }) @>
+      </div>
+    <@ }) @>
+</script>
+
+<script type="text/template" id="movelist-template">
+	<h4> Moves </h4><div class="break"></div>
+	<@ for (var i = 0; i < movelist.length; i += 2) { @>
+		<div class="move-row">
+			<span class="label">
+				<@= (Math.ceil(i/2.0)+1) @>
+			</span>
+			<a class="move" href="#" data-half-move-num="<@= i @>">
+				<@= movelist[i] @>
+			</a>
+			<@ if(i+1 < movelist.length) { @>
+				<a class="move" href="#" data-half-move-num="<@= i+1 @>">
+					<@= movelist[i+1] @>
+				</a>
+			<@ } else { @>
+				<a class="move">
+				</a>
+			<@ } @>
+		</div>
+	<@ } @>
+</script>
+
+<script type="text/template" id="player-template">
+  <div class="icon"> </div>
+
+  <div class="mainblock">
+  	<div class="name"> <@= name @> </div>
+    <div class="action<@= (can_be_invited) ? ' active' : ''  @>">
+    	<input type="text" class="invite" name="invite" placeholder="Invite by Email Address" />
+    </div>
+    <div class="action<@= (can_accept_or_decline) ? ' active' : ''  @>">
+    	<a href="#" class="accept">Accept</a>
+    	<a href="#" class="decline">Decline</a>
+    </div>
+    <div class="action<@= (can_join && !(can_create_and_join)) ? ' active' : ''  @>">
+    	<a href="#" class="join">Join</a>
+    </div>
+    <div class="action<@= (can_join && can_create_and_join) ? ' active' : ''  @>">
+    	<a href="#" class="create_and_join">Join And Create</a>
+    </div>
+    <div class="action<@= (can_leave) ? ' active' : ''  @>">
+    	<a href="#" class="leave">Leave</a>
+    </div>
+  	<div class="captures <@= (can_accept_or_decline || can_be_invited || can_join || can_leave || can_create_and_join) ? '' : 'active'  @>">
+  		<@ for(var j = 0; j < captures.length; j++) { @>
+  			<div class="piece <@= captures[j].color + ' ' + captures[j].piece @>"></div>
+  		<@ } @>
+  	</div>
+  </div>
+  
+</script>
+
+<script type="text/javascript">
+	window.bootstrap = window.bootstrap || {};
+	window.current_user_data = window.current_user_data || {};
+	current_user_data = <%= raw @current_user_data.to_json %>;
+	bootstrap = <%= raw @app_data.to_json %>;
+</script>
+
+<div id="chess_game" class="clearfix">
+</div>
