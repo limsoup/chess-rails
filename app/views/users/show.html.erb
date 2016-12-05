@@ -5,7 +5,6 @@ Email: <%= @user.email %>
 <%= link_to 'New Game', new_chess_game_path %>
 
 <h2>Accepted Games</h2>
-<% now = Time.now %>
 <% @user.games.accepted.each do |g| -%>
 	<%= link_to " Challenged #{distance_of_time_in_words(now, g.created_at)} ago", g %>
 <% end %>

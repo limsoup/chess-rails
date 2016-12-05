@@ -8,7 +8,7 @@ class User < ActiveRecord::Base
 	# end
 
 	def games
-		ChessGame.where("black_player_id == ? OR white_player_id == ?", self.id , self.id)
+		ChessGame.where("black_player_id = ? OR white_player_id = ?", self.id , self.id)
 	end
 	
 	# has_many :chess_games, -> (user) {where("black_player == ? OR white_player == ?", user.id , user.id)}

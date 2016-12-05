@@ -116,7 +116,7 @@ body{
 
 .piece {
   background-color: transparent;
-  background-image: url('/assets/pieces.png');
+  background-image: image-url('pieces.png');
   background-size: 600% 200%;
   cursor: move;
   cursor: grab;

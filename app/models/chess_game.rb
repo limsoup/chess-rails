@@ -13,7 +13,7 @@ class ChessGame < ActiveRecord::Base
 
 	before_save :update_board_marshal
 
-	scope :accepted, -> {where("white_accept == ? AND black_accept == ?", true, true)}
+	scope :accepted, -> {where("white_accept = ? AND black_accept = ?", true, true)}
 	scope :waiting, -> {where("white_accept = ? AND black_accept IS NULL", true)}
 	
 	def self.waiting_on(user)
