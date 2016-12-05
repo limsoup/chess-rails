@@ -482,7 +482,7 @@ $(document).on('turbolinks:load', function (){
 			}
 			if(!this.id && data.id){
 				this.id = data.id;
-				this.socket = io.connect('sakif-chess-socketio.herokuapp.com:3020');
+				this.socket = io.connect('limsoup-chess-socketio.herokuapp.com:3020');
 				this.socket.emit("join_room", this.id.toString());
 				this.socket.on('do_update', _.bind(this.load, this));
 				// this.socket.on('update', _.bind(this.load, this));
