@@ -87,7 +87,7 @@
 </script>
 
 <script type="text/template" id="movelist-template">
-	<h4> Moves </h4><div class="break"></div>
+	<h3> Moves </h3><div class="break"></div>
 	<@ for (var i = 0; i < movelist.length; i += 2) { @>
 		<div class="move-row">
 			<span class="label">
@@ -112,7 +112,7 @@
   <div class="icon"> </div>
 
   <div class="mainblock">
-  	<div class="name"> <@= name @> </div>
+  	<div class="name <@= (can_move) ? ' active-player' : ''  @>"> <@= name @> </div>
     <div class="action<@= (can_be_invited) ? ' active' : ''  @>">
     	<input type="text" class="invite" name="invite" placeholder="Invite by Email Address" />
     </div>

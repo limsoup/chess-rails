@@ -43,7 +43,11 @@ class ChessGame < ActiveRecord::Base
 
 	def load_board
 		if self.board_marshal
-			@board = Marshal.load(ActiveRecord::Base.connection.unescape_bytea(self.board_marshal))
+			if Rails.env == "production"
+				@board = Marshal.load(ActiveRecord::Base.connection.unescape_bytea(self.board_marshal))
+			else
+				@board = Marshal.load(self.board_marshal)
+			end
 			@board.game = self
 		else
 			@board = ChessBoard.new(self)

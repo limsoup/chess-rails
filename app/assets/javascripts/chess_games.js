@@ -84,6 +84,9 @@ $(document).on('turbolinks:load', function (){
 		Player.prototype.is_current_user = function () {
 			return _.isNumber(this.id) &&
 				this.id === game.current_user.id; };
+		Player.prototype.can_move = function () {
+			return this.id && game.active_player_id && game.active_player_id == this.id;
+		};
 		Player.prototype.can_be_invited = function () {
 			return (game.status == 'Not Started' && 
 				game.current_user.player() &&
@@ -156,6 +159,7 @@ $(document).on('turbolinks:load', function (){
 				captures: _.map(this.captures, function (c) {
 					return {color: color_class(c), piece: piece_class(c)};
 				}),
+				can_move: this.can_move(),
 				can_accept_or_decline : this.can_accept_or_decline(),
 				can_join : this.can_join(),
 				can_create_and_join : this.can_create_and_join(),
