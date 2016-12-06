@@ -142,7 +142,7 @@ class ChessGamesController < ApplicationController
         status: @chess_game.game_status,
         active_player_id: @chess_game.active_player_id,
         env: Rails.env,
-        socketio_url: Rails.env == "production" ? "limsoup-chess-socketio.herokuapp.com:"+$socketio_port : nil,
+        socketio_url: Rails.env == "production" ? "limsoup-chess-socketio.herokuapp.com" : nil, #:"+$socketio_port
         board: {
           fen: @chess_game.board.fen_str,
           movelist: @chess_game.board.movelist,
