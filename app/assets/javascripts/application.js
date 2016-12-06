@@ -16,5 +16,4 @@
 //= require dragula
 //= require underscore
 //= require backbone
-//= require socket.io-1.4.5
 //= require_tree .

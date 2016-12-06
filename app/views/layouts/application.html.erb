@@ -5,7 +5,14 @@
   <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
   <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,900" rel="stylesheet">
 
+	<% if Rails.env == "production" %>
+		<script src="http://limsoup-chess-socketio.herokuapp.com/socket.io/socket.io.js"></script>
+	<% else %>
+
+		<script src="http://192.168.2.65:3020/socket.io/socket.io.js"></script>
+	<% end %>
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+
   <%= csrf_meta_tags %>
 </head>
 <body>
