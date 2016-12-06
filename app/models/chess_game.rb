@@ -53,7 +53,11 @@ class ChessGame < ActiveRecord::Base
 
 	def update_board_marshal
 		if @board
-			self.board_marshal = Marshal.dump(@board).force_encoding('utf-8')
+			if Rails.env == "production"
+				self.board_marshal = Marshal.dump(@board) #.force_encoding('utf-8')
+			else
+				self.board_marshal = Marshal.dump(@board).force_encoding('utf-8')
+			end
 			# self.board.game = self
 		end
 	end
