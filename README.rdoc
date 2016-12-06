@@ -2,7 +2,7 @@
 
 http://limsoup-chess.herokuapp.com
 
-It uses another very small "app" under github.com/limsoup/chess-rails-socketio.
+It uses another very small "app" under http://github.com/limsoup/chess-rails-socketio.
 
 Basic description of how it goes:
 
