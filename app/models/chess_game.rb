@@ -43,7 +43,7 @@ class ChessGame < ActiveRecord::Base
 
 	def load_board
 		if self.board_marshal
-			@board = Marshal.load(self.board_marshal)
+			@board = Marshal.load(ActiveRecord::Base.connection.unescape_bytea(self.board_marshal))
 			@board.game = self
 		else
 			@board = ChessBoard.new(self)
@@ -54,7 +54,7 @@ class ChessGame < ActiveRecord::Base
 	def update_board_marshal
 		if @board
 			if Rails.env == "production"
-				self.board_marshal = Marshal.dump(@board) #.force_encoding('utf-8')
+				self.board_marshal = ActiveRecord::Base.connection.escape_bytea(Marshal.dump(@board)) #.force_encoding('utf-8')
 			else
 				self.board_marshal = Marshal.dump(@board).force_encoding('utf-8')
 			end
